@@ -30,9 +30,14 @@
 
 var _foo = require("./foo.js");
 
+var _doc = _interopRequireDefault(require("./doc.md"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 console.log("main");
+console.log(_doc["default"]);
 (0, _foo.foo)();
-    }, {"./foo.js":2}],
+    }, {"./foo.js":2,"./doc.md":3}],
   
     2: [function (require, module, exports) {
       "use strict";
@@ -47,6 +52,17 @@ var foo = function foo() {
 };
 
 exports.foo = foo;
+    }, {}],
+  
+    3: [function (require, module, exports) {
+      "use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+var _default = 'this is a doc';
+exports["default"] = _default;
     }, {}],
   
 })

@@ -6,11 +6,19 @@ const path = require("path")
 const ejs = require("ejs")
 
 let id = 1
+let globalConfig = {}
 
 // 1. 获取文件的内容和依赖关系
 function createAsset(filename) {
   // 获取文件内容
-  const source = fs.readFileSync(filename, "utf-8")
+  let source = fs.readFileSync(filename, "utf-8")
+  const loaders = globalConfig.module.rules
+  loaders.forEach(loaderConfig => {
+    const { test, use } = loaderConfig
+    if (test.test(filename)) {
+      source = use(source)
+    }
+  })
 
   // 获取文件的依赖关系
   // 借助 ast 解析，获取到依赖
@@ -38,7 +46,8 @@ function createAsset(filename) {
   }
 }
 
-function createGraph(filename) {
+function createGraph() {
+  const filename = globalConfig.entry
   const mainAsset = createAsset(filename)
   const dirname = path.dirname(filename)
 
@@ -78,5 +87,22 @@ function bundle(graph) {
   emitFile(code)
 }
 
-const graph = createGraph("./example/main.js")
-bundle(graph)
+const mdLoader = function (source) {
+  // 把非 js 代码，转换为 js 代码
+  // todo md -> js
+  return `export default 'this is a doc'`
+}
+const webpackConfig = {
+  entry: "./example/main.js",
+  module: {
+    rules: [{ test: /\.md$/, use: mdLoader }],
+  },
+}
+
+function webpack(config) {
+  globalConfig = config
+  const graph = createGraph()
+  bundle(graph)
+}
+
+webpack(webpackConfig)
